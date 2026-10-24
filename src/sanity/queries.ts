@@ -13,6 +13,7 @@ export const SITE_CONTENT_QUERY = defineQuery(`{
     openingHours[]{ _key, day, opens, closes },
     ordering{ onlineShopUrl, mysteryBoxUrl, deliverooUrl, googleMapsUrl },
     social{ instagram, facebook, tiktok },
+    commerce{ checkoutMode, shopifyStoreUrl, deliveryNotes, returnsPolicy },
     googleRating{ value, reviewCount },
     hygieneRating{ value, inspected },
     seo{
@@ -63,3 +64,28 @@ export const SITE_CONTENT_QUERY = defineQuery(`{
     image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }
   }
 }`);
+
+const PRODUCT_FIELDS = `
+  _id,
+  name,
+  "slug": slug.current,
+  summary,
+  highlights,
+  sellingMode,
+  price,
+  available,
+  maxPerOrder,
+  shopifyVariantId,
+  images[]{ _key, alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }
+`;
+
+export const PRODUCTS_QUERY = defineQuery(`*[_type == "product" && defined(slug.current)] | order(sortOrder asc, _createdAt asc){
+  ${PRODUCT_FIELDS}
+}`);
+
+export const PRODUCT_QUERY = defineQuery(`*[_type == "product" && slug.current == $slug][0]{
+  ${PRODUCT_FIELDS},
+  description
+}`);
+
+export const PRODUCT_SLUGS_QUERY = defineQuery(`*[_type == "product" && defined(slug.current)]{ "slug": slug.current }`);

@@ -1,10 +1,10 @@
 import type { PortableTextBlock } from "next-sanity";
-import type { SITE_CONTENT_QUERY_RESULT } from "../../sanity.types";
+import type { PRODUCT_QUERY_RESULT, PRODUCTS_QUERY_RESULT, SITE_CONTENT_QUERY_RESULT } from "../../sanity.types";
 import { urlFor } from "@/sanity/image";
 import { cachedSanity } from "@/sanity/live";
-import { SITE_CONTENT_QUERY } from "@/sanity/queries";
+import { PRODUCT_QUERY, PRODUCT_SLUGS_QUERY, PRODUCTS_QUERY, SITE_CONTENT_QUERY } from "@/sanity/queries";
 import { fallback } from "./fallback";
-import type { DayHours, Heading, Img, SiteContent } from "./types";
+import type { DayHours, Heading, Img, Product, SiteContent } from "./types";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
 
@@ -85,6 +85,12 @@ export function toSiteContent(data: SITE_CONTENT_QUERY_RESULT | null): SiteConte
       allergenNotice: text(s?.allergenNotice, b.allergenNotice),
       hours: hours(s?.openingHours, b.hours),
     },
+    commerce: {
+      checkoutMode: s?.commerce?.checkoutMode === "shopify" ? "shopify" : "demo",
+      shopifyStoreUrl: text(s?.commerce?.shopifyStoreUrl, f.commerce.shopifyStoreUrl).replace(/\/+$/, ""),
+      deliveryNotes: s?.commerce?.deliveryNotes?.length ? s.commerce.deliveryNotes : f.commerce.deliveryNotes,
+      returnsPolicy: text(s?.commerce?.returnsPolicy, f.commerce.returnsPolicy),
+    },
     seo: {
       title: text(s?.seo?.title, f.seo.title),
       description: text(s?.seo?.description, f.seo.description),
@@ -158,5 +164,59 @@ export async function getSiteContent(): Promise<SiteContent> {
   } catch (err) {
     console.error("[sanity] falling back to built-in content:", err);
     return fallback;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shop
+
+const PLACEHOLDER: Img = { src: "/images/box.jpg", alt: "" };
+
+function toProduct(p: NonNullable<PRODUCT_QUERY_RESULT> | PRODUCTS_QUERY_RESULT[number]): Product {
+  const images = (p.images ?? []).map((i) => img(i, 1600, { ...PLACEHOLDER, alt: p.name ?? "" }));
+  return {
+    id: p._id,
+    slug: p.slug ?? "",
+    name: p.name ?? "",
+    summary: p.summary ?? "",
+    highlights: p.highlights ?? [],
+    mode: p.sellingMode === "madeToOrder" ? "madeToOrder" : "purchasable",
+    price: typeof p.price === "number" ? p.price : null,
+    available: p.available !== false,
+    maxPerOrder: p.maxPerOrder && p.maxPerOrder > 0 ? p.maxPerOrder : 10,
+    shopifyVariantId: p.shopifyVariantId ?? null,
+    images: images.length ? images : [{ ...PLACEHOLDER, alt: p.name ?? "" }],
+    description: ("description" in p && Array.isArray(p.description) ? p.description : []) as PortableTextBlock[],
+  };
+}
+
+const fetchOptions = () => ({ perspective: "published" as const, stega: false as const, tags: [SITE_CONTENT_TAG] });
+
+export async function getProducts(): Promise<Product[]> {
+  try {
+    const { data } = await cachedSanity({ query: PRODUCTS_QUERY, ...fetchOptions() });
+    return (data ?? []).filter((p) => p.slug && p.name).map(toProduct);
+  } catch (err) {
+    console.error("[sanity] could not load products:", err);
+    return [];
+  }
+}
+
+export async function getProduct(slug: string): Promise<Product | null> {
+  try {
+    const { data } = await cachedSanity({ query: PRODUCT_QUERY, params: { slug }, ...fetchOptions() });
+    return data?.slug ? toProduct(data) : null;
+  } catch (err) {
+    console.error("[sanity] could not load product:", err);
+    return null;
+  }
+}
+
+export async function getProductSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const { data } = await cachedSanity({ query: PRODUCT_SLUGS_QUERY, ...fetchOptions() });
+    return (data ?? []).flatMap((p) => (p.slug ? [{ slug: p.slug }] : []));
+  } catch {
+    return [];
   }
 }

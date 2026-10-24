@@ -25,8 +25,31 @@ export type Business = {
   hours: DayHours[];
 };
 
+export type Commerce = {
+  checkoutMode: "demo" | "shopify";
+  shopifyStoreUrl: string;
+  deliveryNotes: string[];
+  returnsPolicy: string;
+};
+
+export type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  highlights: string[];
+  mode: "purchasable" | "madeToOrder";
+  price: number | null;
+  available: boolean;
+  maxPerOrder: number;
+  shopifyVariantId: string | null;
+  images: Img[];
+  description: PortableTextBlock[];
+};
+
 export type SiteContent = {
   business: Business;
+  commerce: Commerce;
   seo: { title: string; description: string; image: Img };
   hero: { eyebrow: string; heading: Heading; intro: string; image: Img; mobileImage: Img };
   story: {

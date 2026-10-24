@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { getImageProps } from "next/image";
+import Link from "next/link";
 import { ArrowDown, ArrowUpRight, Star } from "lucide-react";
 import { useRef, type CSSProperties } from "react";
 import type { Business, SiteContent } from "@/lib/types";
@@ -9,7 +10,7 @@ import { OpenStatus } from "./OpenStatus";
 
 type Props = {
   hero: SiteContent["hero"];
-  business: Pick<Business, "mysteryBoxUrl" | "mapsUrl" | "googleRating" | "hours">;
+  business: Pick<Business, "mapsUrl" | "googleRating" | "hours">;
 };
 
 export function Hero({ hero, business }: Props) {
@@ -66,15 +67,13 @@ export function Hero({ hero, business }: Props) {
         <div className="fade-up" style={{ animationDelay: "0.45s" }}>
           <p className="mt-7 max-w-[34ch] text-[17px] leading-relaxed text-cocoa/80 lg:text-[19px]">{hero.intro}</p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <a
-              href={business.mysteryBoxUrl}
-              target="_blank"
-              rel="noopener"
+            <Link
+              href="/shop/mystery-box"
               className="group inline-flex items-center gap-2 rounded-full bg-raspberry px-7 py-4 text-[15px] font-medium text-cream shadow-[0_10px_30px_-10px_rgba(179,36,90,0.7)] transition-all hover:-translate-y-0.5 hover:bg-raspberry-deep"
             >
               Order a Mystery Box
               <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-            </a>
+            </Link>
             <a
               href="#visit"
               className="inline-flex items-center gap-2 rounded-full border border-cocoa/25 bg-cream/40 px-7 py-4 text-[15px] font-medium text-cocoa backdrop-blur-sm transition-colors hover:border-cocoa hover:bg-cream/70"

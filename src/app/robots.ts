@@ -3,7 +3,7 @@ import { siteUrl } from "@/lib/fallback";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/" },
+    rules: { userAgent: "*", allow: "/", disallow: ["/checkout"] },
     sitemap: `${siteUrl}/sitemap.xml`,
   };
 }

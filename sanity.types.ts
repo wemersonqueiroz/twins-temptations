@@ -49,6 +49,53 @@ export type Bake = {
   sortOrder?: number;
 };
 
+export type Product = {
+  _id: string;
+  _type: "product";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  summary?: string;
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  highlights?: Array<string>;
+  images?: Array<
+    {
+      _key: string;
+    } & ImageWithAlt
+  >;
+  sellingMode?: "purchasable" | "madeToOrder";
+  price?: number;
+  available?: boolean;
+  maxPerOrder?: number;
+  shopifyVariantId?: string;
+  sortOrder?: number;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
 export type HomePage = {
   _id: string;
   _type: "homePage";
@@ -124,6 +171,12 @@ export type SiteSettings = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  commerce?: {
+    checkoutMode?: "demo" | "shopify";
+    shopifyStoreUrl?: string;
+    deliveryNotes?: Array<string>;
+    returnsPolicy?: string;
+  };
   businessName?: string;
   tagline?: string;
   email?: string;
@@ -289,17 +342,13 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
 export type AllSanitySchemaTypes =
   | SectionHeading
   | SanityImageAssetReference
   | ImageWithAlt
   | Bake
+  | Product
+  | Slug
   | HomePage
   | SiteSettings
   | SanityImageCrop
@@ -311,12 +360,11 @@ export type AllSanitySchemaTypes =
   | SanityFileAsset
   | SanityAssetSourceData
   | SanityImageAsset
-  | Geopoint
-  | Slug;
+  | Geopoint;
 
 // Source: ../twins-temptations-cms/src/sanity/queries.ts
 // Variable: SITE_CONTENT_QUERY
-// Query: {  "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{    businessName,    tagline,    email,    phone,    address{ street, locality, postcode, country },    shopOpened,    allergenNotice,    openingHours[]{ _key, day, opens, closes },    ordering{ onlineShopUrl, mysteryBoxUrl, deliverooUrl, googleMapsUrl },    social{ instagram, facebook, tiktok },    googleRating{ value, reviewCount },    hygieneRating{ value, inspected },    seo{      title,      description,      shareImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    }  },  "home": *[_type == "homePage" && _id == "homePage"][0]{    hero{      eyebrow,      heading{ statement, emphasis },      intro,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },      mobileImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    story{      heading{ statement, emphasis },      body,      quote,      quoteAttribution,      milestones[]{ _key, when, what },      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },      secondaryImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    bakesSection{ heading{ statement, emphasis }, intro },    mysteryBox{      eyebrow,      heading{ statement, emphasis },      description,      price,      treatCount,      shelfLife,      deliveryNotes,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    celebrations{      heading{ statement, emphasis },      body,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    visit{ heading{ statement, emphasis }, note }  },  "bakes": *[_type == "bake" && defined(name)] | order(sortOrder asc, _createdAt asc){    _id,    name,    description,    image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }  }}
+// Query: {  "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{    businessName,    tagline,    email,    phone,    address{ street, locality, postcode, country },    shopOpened,    allergenNotice,    openingHours[]{ _key, day, opens, closes },    ordering{ onlineShopUrl, mysteryBoxUrl, deliverooUrl, googleMapsUrl },    social{ instagram, facebook, tiktok },    commerce{ checkoutMode, shopifyStoreUrl, deliveryNotes, returnsPolicy },    googleRating{ value, reviewCount },    hygieneRating{ value, inspected },    seo{      title,      description,      shareImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    }  },  "home": *[_type == "homePage" && _id == "homePage"][0]{    hero{      eyebrow,      heading{ statement, emphasis },      intro,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },      mobileImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    story{      heading{ statement, emphasis },      body,      quote,      quoteAttribution,      milestones[]{ _key, when, what },      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },      secondaryImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    bakesSection{ heading{ statement, emphasis }, intro },    mysteryBox{      eyebrow,      heading{ statement, emphasis },      description,      price,      treatCount,      shelfLife,      deliveryNotes,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    celebrations{      heading{ statement, emphasis },      body,      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }    },    visit{ heading{ statement, emphasis }, note }  },  "bakes": *[_type == "bake" && defined(name)] | order(sortOrder asc, _createdAt asc){    _id,    name,    description,    image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }  }}
 export type SITE_CONTENT_QUERY_RESULT = {
   settings: {
     businessName: string | null;
@@ -355,6 +403,12 @@ export type SITE_CONTENT_QUERY_RESULT = {
       instagram: string | null;
       facebook: string | null;
       tiktok: string | null;
+    } | null;
+    commerce: {
+      checkoutMode: "demo" | "shopify" | null;
+      shopifyStoreUrl: string | null;
+      deliveryNotes: Array<string> | null;
+      returnsPolicy: string | null;
     } | null;
     googleRating: {
       value: number | null;
@@ -579,10 +633,104 @@ export type SITE_CONTENT_QUERY_RESULT = {
   }>;
 };
 
+// Source: ../twins-temptations-cms/src/sanity/queries.ts
+// Variable: PRODUCTS_QUERY
+// Query: *[_type == "product" && defined(slug.current)] | order(sortOrder asc, _createdAt asc){    _id,  name,  "slug": slug.current,  summary,  highlights,  sellingMode,  price,  available,  maxPerOrder,  shopifyVariantId,  images[]{ _key, alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }}
+export type PRODUCTS_QUERY_RESULT = Array<{
+  _id: string;
+  name: string | null;
+  slug: string | null;
+  summary: string | null;
+  highlights: Array<string> | null;
+  sellingMode: "madeToOrder" | "purchasable" | null;
+  price: number | null;
+  available: boolean | null;
+  maxPerOrder: number | null;
+  shopifyVariantId: string | null;
+  images: Array<{
+    _key: string;
+    alt: string | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+        dimensions: {
+          width: number | null;
+          height: number | null;
+        } | null;
+      } | null;
+    } | null;
+  }> | null;
+}>;
+
+// Source: ../twins-temptations-cms/src/sanity/queries.ts
+// Variable: PRODUCT_QUERY
+// Query: *[_type == "product" && slug.current == $slug][0]{    _id,  name,  "slug": slug.current,  summary,  highlights,  sellingMode,  price,  available,  maxPerOrder,  shopifyVariantId,  images[]{ _key, alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },  description}
+export type PRODUCT_QUERY_RESULT = {
+  _id: string;
+  name: string | null;
+  slug: string | null;
+  summary: string | null;
+  highlights: Array<string> | null;
+  sellingMode: "madeToOrder" | "purchasable" | null;
+  price: number | null;
+  available: boolean | null;
+  maxPerOrder: number | null;
+  shopifyVariantId: string | null;
+  images: Array<{
+    _key: string;
+    alt: string | null;
+    hotspot: SanityImageHotspot | null;
+    crop: SanityImageCrop | null;
+    asset: {
+      _id: string;
+      url: string | null;
+      metadata: {
+        lqip: string | null;
+        dimensions: {
+          width: number | null;
+          height: number | null;
+        } | null;
+      } | null;
+    } | null;
+  }> | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+} | null;
+
+// Source: ../twins-temptations-cms/src/sanity/queries.ts
+// Variable: PRODUCT_SLUGS_QUERY
+// Query: *[_type == "product" && defined(slug.current)]{ "slug": slug.current }
+export type PRODUCT_SLUGS_QUERY_RESULT = Array<{
+  slug: string | null;
+}>;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    '{\n  "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{\n    businessName,\n    tagline,\n    email,\n    phone,\n    address{ street, locality, postcode, country },\n    shopOpened,\n    allergenNotice,\n    openingHours[]{ _key, day, opens, closes },\n    ordering{ onlineShopUrl, mysteryBoxUrl, deliverooUrl, googleMapsUrl },\n    social{ instagram, facebook, tiktok },\n    googleRating{ value, reviewCount },\n    hygieneRating{ value, inspected },\n    seo{\n      title,\n      description,\n      shareImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    }\n  },\n  "home": *[_type == "homePage" && _id == "homePage"][0]{\n    hero{\n      eyebrow,\n      heading{ statement, emphasis },\n      intro,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },\n      mobileImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    story{\n      heading{ statement, emphasis },\n      body,\n      quote,\n      quoteAttribution,\n      milestones[]{ _key, when, what },\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },\n      secondaryImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    bakesSection{ heading{ statement, emphasis }, intro },\n    mysteryBox{\n      eyebrow,\n      heading{ statement, emphasis },\n      description,\n      price,\n      treatCount,\n      shelfLife,\n      deliveryNotes,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    celebrations{\n      heading{ statement, emphasis },\n      body,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    visit{ heading{ statement, emphasis }, note }\n  },\n  "bakes": *[_type == "bake" && defined(name)] | order(sortOrder asc, _createdAt asc){\n    _id,\n    name,\n    description,\n    image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n  }\n}': SITE_CONTENT_QUERY_RESULT;
+    '{\n  "settings": *[_type == "siteSettings" && _id == "siteSettings"][0]{\n    businessName,\n    tagline,\n    email,\n    phone,\n    address{ street, locality, postcode, country },\n    shopOpened,\n    allergenNotice,\n    openingHours[]{ _key, day, opens, closes },\n    ordering{ onlineShopUrl, mysteryBoxUrl, deliverooUrl, googleMapsUrl },\n    social{ instagram, facebook, tiktok },\n    commerce{ checkoutMode, shopifyStoreUrl, deliveryNotes, returnsPolicy },\n    googleRating{ value, reviewCount },\n    hygieneRating{ value, inspected },\n    seo{\n      title,\n      description,\n      shareImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    }\n  },\n  "home": *[_type == "homePage" && _id == "homePage"][0]{\n    hero{\n      eyebrow,\n      heading{ statement, emphasis },\n      intro,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },\n      mobileImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    story{\n      heading{ statement, emphasis },\n      body,\n      quote,\n      quoteAttribution,\n      milestones[]{ _key, when, what },\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } },\n      secondaryImage{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    bakesSection{ heading{ statement, emphasis }, intro },\n    mysteryBox{\n      eyebrow,\n      heading{ statement, emphasis },\n      description,\n      price,\n      treatCount,\n      shelfLife,\n      deliveryNotes,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    celebrations{\n      heading{ statement, emphasis },\n      body,\n      image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n    },\n    visit{ heading{ statement, emphasis }, note }\n  },\n  "bakes": *[_type == "bake" && defined(name)] | order(sortOrder asc, _createdAt asc){\n    _id,\n    name,\n    description,\n    image{ alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n  }\n}': SITE_CONTENT_QUERY_RESULT;
+    '*[_type == "product" && defined(slug.current)] | order(sortOrder asc, _createdAt asc){\n  \n  _id,\n  name,\n  "slug": slug.current,\n  summary,\n  highlights,\n  sellingMode,\n  price,\n  available,\n  maxPerOrder,\n  shopifyVariantId,\n  images[]{ _key, alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n\n}': PRODUCTS_QUERY_RESULT;
+    '*[_type == "product" && slug.current == $slug][0]{\n  \n  _id,\n  name,\n  "slug": slug.current,\n  summary,\n  highlights,\n  sellingMode,\n  price,\n  available,\n  maxPerOrder,\n  shopifyVariantId,\n  images[]{ _key, alt, hotspot, crop, asset->{ _id, url, metadata{ lqip, dimensions{ width, height } } } }\n,\n  description\n}': PRODUCT_QUERY_RESULT;
+    '*[_type == "product" && defined(slug.current)]{ "slug": slug.current }': PRODUCT_SLUGS_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

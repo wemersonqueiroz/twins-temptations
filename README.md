@@ -24,6 +24,7 @@ Copy `.env.example` to `.env.local` first if it doesn't exist.
 | **Home page** | Hero, story, bakes intro, Mystery Box, celebrations, visit texts and images |
 | **Site settings** | Contact, address, opening hours, links, ratings, SEO and share image |
 | **Bakes** | The list under "The bakes", ordered by *Sort order* |
+| **Shop products** | `/shop` and `/shop/[slug]`: buy online (cart) or made to order (enquiry) |
 
 Any empty field falls back to the built-in content in `src/lib/fallback.ts`,
 so the site never renders blank.
@@ -40,7 +41,7 @@ so the site never renders blank.
 2. In [sanity.io/manage](https://www.sanity.io/manage) → project → **API → Webhooks → Create**:
    - URL: `https://<your-domain>/api/revalidate`
    - Dataset: `production`, Trigger on: create, update, delete
-   - Filter: `_type in ["siteSettings", "homePage", "bake"]`
+   - Filter: `_type in ["siteSettings", "homePage", "bake", "product"]`
    - Secret: the same value as `SANITY_REVALIDATE_SECRET`
 3. Add the production URL to CORS: `cd studio-twinstemptations && npx sanity cors add https://<your-domain> --credentials`
 
@@ -53,3 +54,13 @@ cd studio-twinstemptations
 npm run typegen        # writes ../twins-temptations-cms/sanity.types.ts
 npx sanity schemas deploy
 ```
+
+## Shop & checkout
+
+- Cart lives in the browser (localStorage); the drawer opens from the bag icon.
+- **Site settings → Shop & checkout → Checkout mode**
+  - **Demo** (default): full checkout at `/checkout`, no payment taken, clearly labelled.
+  - **Shopify**: the cart button sends shoppers to the Shopify checkout using a cart permalink
+    (`<store>/cart/<variantId>:<qty>,…`). Every product needs its *Shopify variant ID*
+    (find it in `<store>/products.json`). No API keys needed.
+- A deeper integration (Shopify Storefront API, live stock and prices from Shopify) is the next step if needed.

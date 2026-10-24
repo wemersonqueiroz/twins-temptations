@@ -5,6 +5,10 @@ import { expireSanityTags } from "@/sanity/actions";
 import { getSiteContent } from "@/lib/content";
 import { siteUrl } from "@/lib/fallback";
 import type { SiteContent } from "@/lib/types";
+import { CartProvider } from "@/components/cart/CartProvider";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { Nav } from "@/components/Nav";
+import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -83,7 +87,18 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(bakeryJsonLd(content)).replace(/</g, "\\u003c") }}
         />
-        {children}
+        <CartProvider>
+          <a
+            href="#main"
+            className="sr-only z-[70] rounded bg-cocoa px-4 py-2 text-cream focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          >
+            Skip to content
+          </a>
+          <Nav phone={content.business.phone} phoneHref={content.business.phoneHref} />
+          {children}
+          <SiteFooter business={content.business} />
+          <CartDrawer commerce={content.commerce} />
+        </CartProvider>
         <SanityLive action={expireSanityTags} />
       </body>
     </html>

@@ -48,6 +48,17 @@ export const fallback: SiteContent = {
       { day: "Sunday", open: null, close: null },
     ],
   },
+  commerce: {
+    checkoutMode: "demo",
+    shopifyStoreUrl: "https://twinstemptations.co.uk",
+    deliveryNotes: [
+      "Order before 11:30am, Tuesday to Friday, and it usually goes out the same day.",
+      "Sent Royal Mail Tracked 24, aiming for next-day delivery (not guaranteed).",
+      "No dispatch on Saturdays, Sundays, Mondays or bank holidays.",
+    ],
+    returnsPolicy:
+      "Everything is freshly baked and perishable, so all sales are final and we can't offer returns, exchanges or refunds. If something is wrong with your order, email us within 24 hours of delivery.",
+  },
   seo: {
     title: "Twins Temptations — Buttercream Cakes & Sweet Treats, Bournemouth",
     description:

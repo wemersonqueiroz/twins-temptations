@@ -1,14 +1,16 @@
 import { PortableText } from "next-sanity";
 import { ArrowUpRight, Clock, Mail, MapPin, Phone, Truck, Store, Bike } from "lucide-react";
-import { getSiteContent } from "@/lib/content";
+import { getProduct, getSiteContent } from "@/lib/content";
+import Link from "next/link";
+import { AddToCart } from "@/components/cart/AddToCart";
 import type { Heading } from "@/lib/types";
-import { Nav } from "@/components/Nav";
+import { openDaysSummary } from "@/lib/hours";
 import { Hero } from "@/components/Hero";
 import { Bakes } from "@/components/Bakes";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { HoursTable } from "@/components/OpenStatus";
 import { MaskImage, Reveal } from "@/components/motion";
-import { FacebookIcon, InstagramIcon, TikTokIcon, TwinMark } from "@/components/icons";
+import { TwinMark } from "@/components/icons";
 
 function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
@@ -55,15 +57,14 @@ function WithHandle({ text, href }: { text: string; href: string }) {
 const h2 = "font-display text-[clamp(2.6rem,6vw,5.2rem)] font-light leading-[0.98] tracking-[-0.025em]";
 
 export default async function Home() {
-  const { business, hero, story, bakesSection, bakes, mysteryBox, celebrations, visit } = await getSiteContent();
+  const [{ business, hero, story, bakesSection, bakes, mysteryBox, celebrations, visit }, boxProduct] = await Promise.all([
+    getSiteContent(),
+    getProduct("mystery-box"),
+  ]);
   const marqueeItems = bakes.map((b) => b.name);
 
   return (
     <>
-      <a href="#main" className="sr-only z-[70] rounded bg-cocoa px-4 py-2 text-cream focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
-        Skip to content
-      </a>
-      <Nav shopUrl={business.shopUrl} phone={business.phone} phoneHref={business.phoneHref} />
       <main id="main">
         <Hero hero={hero} business={business} />
 
@@ -202,15 +203,18 @@ export default async function Home() {
                     );
                   })}
                 </ul>
-                <a
-                  href={business.mysteryBoxUrl}
-                  target="_blank"
-                  rel="noopener"
-                  className="group mt-10 inline-flex items-center gap-2 rounded-full bg-rose px-8 py-4 text-[15px] font-medium text-cocoa transition-all hover:-translate-y-0.5 hover:bg-cream"
-                >
-                  Order the Mystery Box · {mysteryBox.price}
-                  <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-                </a>
+                <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
+                  {boxProduct?.mode === "purchasable" ? (
+                    <AddToCart product={boxProduct} tone="dark" showQty={false} />
+                  ) : null}
+                  <Link
+                    href="/shop/mystery-box"
+                    className="group inline-flex items-center gap-2 text-[15px] font-medium text-cream underline decoration-cream/30 underline-offset-[6px] hover:decoration-cream"
+                  >
+                    See what could be inside
+                    <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
+                  </Link>
+                </div>
                 <p className="mt-5 text-[12px] leading-relaxed text-cream/50">{business.allergenNotice}</p>
               </Reveal>
             </div>
@@ -244,7 +248,7 @@ export default async function Home() {
                   title: "Posted to your door",
                   text: "Anywhere in the UK, straight from the online shop, dispatched Tuesday to Friday.",
                   cta: "Shop online",
-                  href: business.shopUrl,
+                  href: "/shop",
                 },
               ].map((w, i) => (
                 <li key={w.title} className="border-b border-cocoa/15">
@@ -259,8 +263,7 @@ export default async function Home() {
                     <p className="text-[16px] leading-relaxed text-cocoa/75">{w.text}</p>
                     <a
                       href={w.href}
-                      target="_blank"
-                      rel="noopener"
+                      {...(w.href.startsWith("http") ? { target: "_blank", rel: "noopener" } : {})}
                       className="inline-flex items-center gap-1.5 justify-self-start whitespace-nowrap rounded-full border border-cocoa/25 px-5 py-3 text-[14px] font-medium transition-colors hover:border-raspberry hover:bg-raspberry hover:text-cream"
                     >
                       {w.cta} <ArrowUpRight className="size-4" aria-hidden />
@@ -393,84 +396,7 @@ export default async function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="relative overflow-hidden bg-cocoa px-5 pb-10 pt-20 text-cream md:px-10">
-        <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-12 md:grid-cols-3">
-            <div>
-              <p className="font-display text-[26px] italic">Pop in, order in, or post it.</p>
-              <a
-                href={business.shopUrl}
-                target="_blank"
-                rel="noopener"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-rose px-6 py-3 text-[14px] font-medium text-cocoa hover:bg-cream"
-              >
-                Visit the online shop <ArrowUpRight className="size-4" aria-hidden />
-              </a>
-            </div>
-            <div className="text-[15px] leading-relaxed text-cream/75">
-              <p className="mb-3 text-[12px] uppercase tracking-[0.22em] text-rose">Find us</p>
-              <a href={business.mapsUrl} target="_blank" rel="noopener" className="hover:text-cream">
-                {business.address.street}, {business.address.locality} {business.address.postcode}
-              </a>
-              <br />
-              {openDaysSummary(business.hours)}
-              <br />
-              <a href={business.phoneHref} className="hover:text-cream">{business.phone}</a>
-            </div>
-            <div>
-              <p className="mb-3 text-[12px] uppercase tracking-[0.22em] text-rose">Follow the bakes</p>
-              <div className="flex gap-3">
-                {[
-                  { href: business.social.instagram, label: "Instagram", Icon: InstagramIcon },
-                  { href: business.social.facebook, label: "Facebook", Icon: FacebookIcon },
-                  { href: business.social.tiktok, label: "TikTok", Icon: TikTokIcon },
-                ].map(({ href, label, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener"
-                    aria-label={`${business.name} on ${label}`}
-                    className="grid size-12 place-items-center rounded-full border border-cream/20 transition-colors hover:border-rose hover:bg-rose hover:text-cocoa"
-                  >
-                    <Icon className="size-5" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
 
-          <p
-            className="font-display pointer-events-none mt-20 select-none whitespace-nowrap text-center text-[clamp(3rem,13vw,13rem)] font-light italic leading-none tracking-[-0.04em] text-cream/[0.08]"
-            aria-hidden
-          >
-            {business.name}
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 border-t border-cream/10 pt-6 text-[12px] text-cream/50 md:flex-row md:justify-between">
-            <p>© {business.name}. All bakes handmade in {business.address.locality}.</p>
-            <p className="max-w-[62ch] md:text-right">
-              Our kitchen handles all allergens, including nuts. Photography on this site is AI-generated illustration.
-              See our Instagram for the real bakes.
-            </p>
-          </div>
-        </div>
-      </footer>
     </>
   );
-}
-
-/** "Tue–Fri · 10am–4pm" style summary from the hours table. */
-function openDaysSummary(hours: { day: string; open: string | null; close: string | null }[]) {
-  const open = hours.filter((h) => h.open && h.close);
-  if (!open.length) return "Opening hours on our socials";
-  const fmt = (t: string) => {
-    const h = Number(t.slice(0, 2));
-    const m = t.slice(3);
-    return `${h % 12 || 12}${m !== "00" ? `:${m}` : ""}${h >= 12 ? "pm" : "am"}`;
-  };
-  const sameTimes = open.every((h) => h.open === open[0].open && h.close === open[0].close);
-  const days = open.length > 1 ? `${open[0].day.slice(0, 3)}–${open[open.length - 1].day.slice(0, 3)}` : open[0].day;
-  return sameTimes ? `${days} · ${fmt(open[0].open!)}–${fmt(open[0].close!)}` : `${days}, see hours below`;
 }

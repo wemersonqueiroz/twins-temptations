@@ -1,7 +1,7 @@
 "use client";
 
 import { Send } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 /**
  * There is no booking or form backend for this business yet, so the form builds
@@ -10,6 +10,22 @@ import { useState, type FormEvent } from "react";
  */
 export function EnquiryForm({ email }: { email: string }) {
   const [sent, setSent] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Pre-fill from shop links like /?enquiry=Celebration%20cake&item=Celebration%20cakes#celebrations
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("enquiry");
+    const item = params.get("item");
+    const form = formRef.current;
+    if (!form || (!type && !item)) return;
+    const radio = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="type"]')).find((r) => r.value === type);
+    if (radio) radio.checked = true;
+    const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]');
+    if (message && item && !message.value) message.value = `I'd like to enquire about: ${item}.
+
+`;
+  }, []);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,7 +49,7 @@ export function EnquiryForm({ email }: { email: string }) {
   const label = "text-[12px] font-medium uppercase tracking-[0.18em] text-cocoa-soft";
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-6 sm:grid-cols-2">
+    <form ref={formRef} onSubmit={handleSubmit} className="grid gap-6 sm:grid-cols-2">
       <label className="flex flex-col gap-1">
         <span className={label}>Your name</span>
         <input name="name" required autoComplete="name" className={field} placeholder="Full name" />
